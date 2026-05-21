@@ -26,8 +26,19 @@ class KeyManager:
         hash_obj = hashlib.sha256(self.master_password.encode())
         key = base64.urlsafe_b64encode(hash_obj.digest())
         return Fernet(key)
+
+    @staticmethod
+    def _is_valid_name(name: str) -> bool:
+        import re
+        if not name or not isinstance(name, str):
+            return False
+        return bool(re.match(r"^[a-zA-Z0-9_-]+$", name))
+
     
     def save_key(self, key_name: str, key_value: str, metadata: Dict[str, Any] = None) -> bool:
+        if not self._is_valid_name(key_name):
+            print(f"Xato: Noto'g'ri kalit nomi - '{key_name}'")
+            return False
         try:
             encrypted_value = self._cipher.encrypt(key_value.encode())
             
@@ -48,6 +59,8 @@ class KeyManager:
             return False
     
     def get_key(self, key_name: str) -> Optional[str]:
+        if not self._is_valid_name(key_name):
+            return None
         try:
             file_path = self.storage_path / f"{key_name}.json"
             
@@ -67,6 +80,8 @@ class KeyManager:
             return None
     
     def delete_key(self, key_name: str) -> bool:
+        if not self._is_valid_name(key_name):
+            return False
         try:
             file_path = self.storage_path / f"{key_name}.json"
             
@@ -97,6 +112,8 @@ class KeyManager:
             return []
     
     def update_key(self, key_name: str, new_value: str) -> bool:
+        if not self._is_valid_name(key_name):
+            return False
         try:
             file_path = self.storage_path / f"{key_name}.json"
             

@@ -13,13 +13,15 @@ def get_key_manager():
     os.environ["MASTER_PASSWORD"] = master_password
     return KeyManager()
 
+from pydantic import BaseModel, Field
+
 class KeyCreate(BaseModel):
-    name: str
-    value: str
+    name: str = Field(..., pattern="^[a-zA-Z0-9_-]+$", description="Faqat harf, raqam, tagchiziq va chiziqcha")
+    value: str = Field(..., min_length=1, description="Bo'sh bo'lishi mumkin emas")
     metadata: Optional[Dict[str, Any]] = None
 
 class KeyUpdate(BaseModel):
-    value: str
+    value: str = Field(..., min_length=1, description="Bo'sh bo'lishi mumkin emas")
 
 @app.get("/")
 def read_root():
